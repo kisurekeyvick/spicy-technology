@@ -1,5 +1,10 @@
 {
-  "extends": ["tslint:recommended", "tslint-react", "tslint-config-prettier"],
+  "extends": [
+    "tslint:recommended", 
+    "tslint-react", 
+    "tslint-config-prettier", 
+    "tslint-config-airbnb"
+  ],
   "linterOptions": {
     "exclude": [
       "config/**/*.js",
@@ -7,7 +12,12 @@
       "coverage/lcov-report/*.js"
     ]
   },
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
   "rules": {
+    "prettier": true,
+    "@typescript-eslint/no-mixed-operators":"error",
+    "@typescript-eslint/no-useless-escape":"error",
     "jsx-no-lambda": false,
     "max-classes-per-file":[true,100],
     "member-access": false,
@@ -57,5 +67,6 @@
     "only-arrow-functions": false,
     "no-namespace": false,
     "callable-types": false
-  }
+  },
+  "rulesDirectory": ["tslint-plugin-prettier"]
 }

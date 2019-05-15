@@ -1,15 +1,12 @@
 import React from 'react';
-import { Button } from 'antd';
+import Route from '../src/routers/index';
 
 const App: React.FC = () => {
   return (
     <div className="App">
-      <header className="App-header">
-        <Button type="primary">test</Button>
-        <p>hello kisure</p>
-      </header>
+      <Route />
     </div>
   );
-}
+};
 
 export default App;
