@@ -52,6 +52,7 @@
     "@types/react-dom":"^16.8.4",
     "@types/react-router":"^5.0.0",
     "@types/react-router-dom":"^4.3.3",
+    "@types/react-redux":"^7.0.9",
     "@types/lodash":"^4.14.129",
     "@types/react-loadable":"^5.5.1",
     "@typescript-eslint/eslint-plugin": "1.6.0",
