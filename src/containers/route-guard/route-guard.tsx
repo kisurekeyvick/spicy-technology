@@ -25,6 +25,10 @@ export default class RouterGuard extends React.PureComponent<any, any> {
     }
 
     public componentDidMount() {
+        /**
+         * Todo: （1）这里需要验证token
+         *       （2）判断是否有权限显示菜单按钮
+         */
         const token: string | null = this._cookie.getCookie('_token');
 
         if(token) {

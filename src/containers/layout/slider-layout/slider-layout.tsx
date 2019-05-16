@@ -6,7 +6,7 @@ import { ENVConfig } from '../../../environment/environment';
 import { connect } from 'react-redux';
 import { ISubmenu } from '../interface';
 import Breadcrumb from '../../../component/breadcrumb/breadcrumb';
-import './slider.scss';
+import './slider-layout.scss';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { SubMenu } = Menu;
