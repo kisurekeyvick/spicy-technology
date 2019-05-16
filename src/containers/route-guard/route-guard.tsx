@@ -1,7 +1,8 @@
 import * as React from 'react';
-import { Redirect  } from "react-router-dom";
-// Route, Switch
+import { Redirect, Route, Switch } from "react-router-dom";
 import { CookieService } from '../../common/utils/cookie';
+import SlideLayout from '../layout/slider-layout/slider-layout';
+import { sliderRouter, ILoadableRoute } from '../../routers/router';
 import * as _ from 'lodash';
 import './route-guard.scss';
 
@@ -18,7 +19,7 @@ export default class RouterGuard extends React.PureComponent<any, any> {
         };
 
         this.config = {
-            routes: _.cloneDeep([])
+            routes: _.cloneDeep(sliderRouter)
         };
 
         this._cookie = new CookieService();
@@ -32,7 +33,10 @@ export default class RouterGuard extends React.PureComponent<any, any> {
         const token: string | null = this._cookie.getCookie('_token');
 
         if(token) {
-            
+            this.setState({
+                loading: false,
+                authority: true
+            })
         } else {
             this.setState({
                 loading: false
@@ -40,8 +44,19 @@ export default class RouterGuard extends React.PureComponent<any, any> {
         }
     }
 
+    public buildRoutes = () => {
+        return this.config.routes.map((route: ILoadableRoute, index: number) => {
+            const rest: any = { }; 
+            if (route.exact)
+                rest.exact = route.exact;
+
+            return <Route key={`route-` + route.key} {...rest} path={route.path} component={route.component}/>;
+        });
+    };
+
     public render() {
-        // const { location } = this.props;
+        const { location } = this.props;
+        const routes = this.buildRoutes();
         
         return (
             this.state.loading === true ? 
@@ -56,7 +71,13 @@ export default class RouterGuard extends React.PureComponent<any, any> {
                 </div> 
             </div> :
             this.state.authority === true ?
-            <div>hello</div> :
+            <SlideLayout loaction={location}>
+                <div>
+                    <Switch>
+                        { routes }
+                    </Switch>
+                </div>
+            </SlideLayout> :
             <Redirect from='/' to='/user/login'/> 
         );
     }

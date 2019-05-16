@@ -14,7 +14,7 @@ const { SubMenu } = Menu;
 class SlideLayout extends React.Component<any, any>  {
     static propTypes = {
         // getGlobalData: PropTypes.func.isRequired,
-        // location: PropTypes.object
+        location: PropTypes.object
         // loadUserInfo: PropTypes.func.isRequired
     };
 
@@ -73,8 +73,8 @@ class SlideLayout extends React.Component<any, any>  {
     }
 
     public render() {
-        const { userInfo } = this.props;
-        const slideMenu: ISubmenu[] = userInfo && userInfo['slideMenu'] || [];
+        const { userInfo, location } = this.props;
+        const slideMenu: ISubmenu[] = (userInfo && userInfo['slideMenu']) || [];
 
         return (
             <Layout>

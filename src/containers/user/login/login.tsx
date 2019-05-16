@@ -3,6 +3,7 @@ import { Form, Input, Button, Checkbox, Icon, Tabs, Row, Col} from 'antd';
 import { Link } from "react-router-dom";
 import * as _ from 'lodash';
 import * as PropTypes from 'prop-types';
+import moment from 'moment';
 import { IForm, loginFormItem, loginPhoneFormItem } from './login-config';
 import { CookieService } from '../../../common/utils/cookie';
 import { validTelePhone } from '../../../common/utils/validator';
@@ -139,7 +140,12 @@ class UserLogin extends React.PureComponent<any, any> {
                         
                 //         this.props.history.push('/saas/customer/list');
                 //     }
-                // });  
+                // }); 
+
+                // Todo 这一步需要后端接口
+                const endTime: any = params['remember'] ? moment().add(30, 'days').toDate() : '';
+                this._cookie.setCookie('_token', 'YYTDHDSASDFGHFDSDFVGBNGFDS', endTime);
+                this.props.history.push('/home');
             }
         });
     }

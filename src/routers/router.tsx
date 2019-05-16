@@ -1,5 +1,5 @@
 import Loadable from 'react-loadable';
-import { IBase, ILoadableRoute } from './interface';
+import { ILoadableRoute } from './interface';
 
 export const userRouter: ILoadableRoute[] = [
     {
@@ -9,6 +9,22 @@ export const userRouter: ILoadableRoute[] = [
             loading: () => null,
             modules: ['user']
         }),
+        key: 1,
         exact: true
     },
 ];
+
+export const sliderRouter: ILoadableRoute[] = [
+    {
+        path: '/home',
+        component: Loadable({
+            loader: () => import('../containers/home/home'),
+            loading: () => null,
+            modules: ['home']
+        }),
+        key: 2,
+        exact: true
+    }
+];
+
+export type ILoadableRoute = ILoadableRoute;
