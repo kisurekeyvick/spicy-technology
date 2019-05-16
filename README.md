@@ -1,7 +1,10 @@
 #微辣科技 后台管理系统
 - 本项目用typescript为编程语言
-- 脚手架create-react-app
+- 框架：react ^16.8.6
+- 脚手架：create-react-app
 - 组件库：antd 
+- 状态管理：redux
+- 中间件：redux-saga redux-logger
 
 # 环境配置与运行
 ## 第一步：环境配置
