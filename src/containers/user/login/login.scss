@@ -30,6 +30,11 @@
 
         .formItem-item {
             margin: 0 2px 24px;
+
+            img.verificationImage {
+                border: 1px solid #ddd;
+                border-radius: 5px;
+            }
         }
 
         .other-login-icon {

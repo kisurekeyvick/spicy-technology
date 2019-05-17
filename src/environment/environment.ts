@@ -4,5 +4,11 @@ export const ENVConfig = {
     name: '微辣科技',
     footerText: 'spicy-technology ©2019 Author Kisure',
     siderLogo: loginLogo,
-    loginLogo
+    loginLogo,
+    /** 
+     * 接口请求
+     * 例如：baseURL: 'https://some-domain.com/api/'
+     */
+    baseURL: '',
+
 };

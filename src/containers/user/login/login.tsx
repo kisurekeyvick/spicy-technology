@@ -3,10 +3,14 @@ import { Form, Input, Button, Checkbox, Icon, Tabs, Row, Col} from 'antd';
 import { Link } from "react-router-dom";
 import * as _ from 'lodash';
 import * as PropTypes from 'prop-types';
-import moment from 'moment';
+// import moment from 'moment';
 import { IForm, loginFormItem, loginPhoneFormItem } from './login-config';
 import { CookieService } from '../../../common/utils/cookie';
 import { validTelePhone } from '../../../common/utils/validator';
+// import { api } from '../../../common/api/index';
+import LocalStorageService from '../../../common/utils/cache/local-storage';
+import { ENVConfig } from '../../../environment/environment';
+import { decryption } from '../../../common/utils/crypto/crypto';
 import './login.scss';
 
 const FormItem = Form.Item;
@@ -17,7 +21,14 @@ class UserLogin extends React.PureComponent<any, any> {
         history: PropTypes.any.isRequired
     }
 
+    static defaultProps = {
+        MD5: ENVConfig.MD5,
+        DES_KEY: ENVConfig.DES_KEY,
+        DES_IV: ENVConfig.DES_IV
+    };
+
     private _cookie: CookieService;
+    public localStorageService: LocalStorageService;
     public config: any;
     public timeInterval: any;
 
@@ -25,7 +36,8 @@ class UserLogin extends React.PureComponent<any, any> {
         super(props);
 
         this.state = {
-            seconds: 0
+            seconds: 0,
+            verificationImage: ''
         };
 
         this.config = {
@@ -35,6 +47,7 @@ class UserLogin extends React.PureComponent<any, any> {
         };
 
         this._cookie = new CookieService();
+        this.localStorageService = new LocalStorageService();
     }
 
     /**
@@ -105,6 +118,32 @@ class UserLogin extends React.PureComponent<any, any> {
         }, 1000);
     }
 
+    // public DES(jsonData) {
+	// 	const sign = md5Encode(jsonData + this.MD5);
+	// 	return encryptByDES(JSON.stringify({ jsonData, sign }), this.DES_KEY, this.DES_IV);
+	// }
+
+    /**
+     * @func
+     * @desc 获取验证码图片
+     * @memberof UserLogin
+     */
+    public getverificationImage = () => {
+        const userInfo: any = this.localStorageService.get('userInfo');
+        const decryptUserInfo = (userInfo && JSON.parse(decryption(userInfo as string, this.props.DES_KEY, this.props.DES_IV)).jsonData) || {};
+        const token = decryptUserInfo.token || '';
+        const imgUrl = `${window.location.origin}/project1/getRandCode?token=${token}&time=${new Date().getTime()}`;
+
+        fetch(imgUrl).then(res => {
+            return res.blob();
+        }).then(res => {
+            const imgUrl: string = URL.createObjectURL(res);
+            this.setState({
+                verificationImage: imgUrl
+            });
+        });
+    }
+
     /**
      * 账号登录
      * @param e 
@@ -141,11 +180,12 @@ class UserLogin extends React.PureComponent<any, any> {
                 //         this.props.history.push('/saas/customer/list');
                 //     }
                 // }); 
+                // api.login.post()
 
                 // Todo 这一步需要后端接口
-                const endTime: any = params['remember'] ? moment().add(30, 'days').toDate() : '';
-                this._cookie.setCookie('_token', 'YYTDHDSASDFGHFDSDFVGBNGFDS', endTime);
-                this.props.history.push('/home');
+                // const endTime: any = params['remember'] ? moment().add(30, 'days').toDate() : '';
+                // this._cookie.setCookie('_token', 'YYTDHDSASDFGHFDSDFVGBNGFDS', endTime);
+                // this.props.history.push('/home');
             }
         });
     }
@@ -175,6 +215,23 @@ class UserLogin extends React.PureComponent<any, any> {
                                             <Button style={{width: '100%'}} size='large' disabled={this.state.seconds > 0} onClick={this.sendVerificationCode}>
                                                 { this.state.seconds > 0 ? `${this.state.seconds}秒` : '获取验证码' }
                                             </Button>
+                                        </Col>
+                                    </Row>
+                                </div>
+                } else if ( form.key === 'verificationImageCode' ) {
+                    formItem = <div key={`input-button-${form.id}`}>
+                                    <Row gutter={8}>
+                                        <Col span={16}>
+                                            { inputItem }
+                                        </Col>
+                                        <Col span={8}>
+                                            {
+                                                this.state.verificationImage ?
+                                                <img alt='验证码' className='verificationImage' src={this.state.verificationImage} onClick={this.getverificationImage}/> :
+                                                <Button style={{width: '100%'}} size='large' onClick={this.getverificationImage}>
+                                                    获取图片
+                                                </Button>
+                                            }
                                         </Col>
                                     </Row>
                                 </div>

@@ -35,8 +35,24 @@ export const loginFormItem: IForm[] = [
         }
     },
     {
-        label: '记住密码',
+        label: '验证码',
         id: 3,
+        key: 'verificationImageCode',
+        type: 'input',
+        placeholder: '请输入验证码',
+        config: {
+            rule: [
+                { required: true, message: '请输入验证码！' }
+            ],
+            type: 'text',
+            icon: 'mail',
+            initialValue: undefined,
+            hasFeedback: true
+        }
+    },
+    {
+        label: '记住密码',
+        id: 4,
         key: 'remember',
         type: 'checkbox-group',
         config: {
