@@ -49,7 +49,7 @@ class SlideLayout extends React.Component<any, any>  {
                 const menu: any[] = res.data || [];
                 this.setState({
                     menu,
-                    // isLoadingMenu: false
+                    isLoadingMenu: false
                 });
             }
         });
@@ -105,10 +105,9 @@ class SlideLayout extends React.Component<any, any>  {
             <Layout>
                 <Sider trigger={null} collapsible={true} collapsed={this.state.collapsed}>
                     <div className="logo">
-                        {/* <img alt="logo" src={ENVConfig.siderLogo} /> */}
-                        <p>微辣科技</p>
+                        <img alt="logo" src={ENVConfig.siderLogo} />
                     </div>
-                    <Menu theme="dark" mode="inline" defaultSelectedKeys={['3']}>
+                    <Menu className="menuList-box" theme="dark" mode="inline" defaultSelectedKeys={['3']}>
                         {
                             this.state.isLoadingMenu ? 
                             <div className="slide-menu-skeleton">

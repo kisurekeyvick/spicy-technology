@@ -1,9 +1,10 @@
-import loginLogo from '../assets/loginLogo.jpg';
+import loginLogo from '../assets/loginLogo.png';
+import siderLogo from '../assets/siderLogo.png';
 
 export const ENVConfig = {
     name: '微辣科技',
     footerText: 'spicy-technology ©2019 Author Kisure',
-    siderLogo: loginLogo,
+    siderLogo,
     loginLogo,
     /** 
      * 接口请求
