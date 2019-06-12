@@ -6,7 +6,13 @@ import { ENVConfig } from '../../../environment/environment';
 import { connect } from 'react-redux';
 import { ISubmenu } from '../interface';
 import Breadcrumb from '../../../component/breadcrumb/breadcrumb';
+import { Skeleton } from 'antd';
 import './slider-layout.scss';
+/** 
+ * Todo 这一部分暂时是写死的
+ * mock数据
+ */
+import { mockApi } from '../../../_mock/mockApi';
 
 const { Header, Sider, Content, Footer } = Layout;
 const { SubMenu } = Menu;
@@ -22,7 +28,9 @@ class SlideLayout extends React.Component<any, any>  {
         super(props);
 
         this.state = {
-            collapsed: false
+            collapsed: false,
+            menu: [],
+            isLoadingMenu: false
         };
     }
 
@@ -32,7 +40,19 @@ class SlideLayout extends React.Component<any, any>  {
 
     /** 加载菜单 */
     public loadMenu() {
+        this.setState({
+            isLoadingMenu: true
+        });
 
+        mockApi.slideMenuList.post({}, {}).then(res => {
+            if (res.status === 200) {
+                const menu: any[] = res.data || [];
+                this.setState({
+                    menu,
+                    // isLoadingMenu: false
+                });
+            }
+        });
     }
 
     public toggle = () => {
@@ -42,7 +62,7 @@ class SlideLayout extends React.Component<any, any>  {
     }
 
     /** 构建副菜单 */
-    public buildSubMenu = (item: ISubmenu) => {
+    public buildSubMenu = (item: any) => {
         if (item.children) {
             const subTitle = <span><Icon type={item.tags} />{item.title}</span>;
 
@@ -72,24 +92,34 @@ class SlideLayout extends React.Component<any, any>  {
         }
     }
 
-    public render() {
-        const { userInfo, location } = this.props;
-        const slideMenu: ISubmenu[] = (userInfo && userInfo['slideMenu']) || [];
+    /** 左侧菜单按钮骨架屏幕 */
+    // public slideMenuSkeleton = <React.Fragment>
+    //                                 <Skeleton avatar paragraph={{ rows: 4 }} />
+    //                             </React.Fragment>;
 
+    public render() {
+        const { location } = this.props; //  userInfo, 
+        const slideMenu: ISubmenu[] = this.state.menu || [];
+        // const SlideMenuSkeleton: any = this.slideMenuSkeleton;
         return (
             <Layout>
                 <Sider trigger={null} collapsible={true} collapsed={this.state.collapsed}>
                     <div className="logo">
-                        <img alt="logo" src={ENVConfig.siderLogo} />
+                        {/* <img alt="logo" src={ENVConfig.siderLogo} /> */}
+                        <p>微辣科技</p>
                     </div>
                     <Menu theme="dark" mode="inline" defaultSelectedKeys={['3']}>
                         {
+                            this.state.isLoadingMenu ? 
+                            <div className="slide-menu-skeleton">
+                                <Skeleton paragraph={{ rows: 4 }} active/>
+                            </div> :
                             slideMenu.length > 0 ? slideMenu.map((menu: ISubmenu) => {
                                 return this.buildSubMenu(menu);
                             }) : <Menu.Item key="1">
                                     <Icon type="home" />
                                     <span className="span-link">
-                                        <NavLink className="selected" to='/'>home</NavLink>
+                                        <NavLink className="selected" to='/home'>home</NavLink>
                                     </span>
                                 </Menu.Item>
                         }

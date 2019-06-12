@@ -75,15 +75,13 @@ const axiosMethod = (url: string, config: IOptions) => {
         url
     } };
 
-    axios({
+    return axios({
         ...finalConfig
-    }).then(res => {
-        console.log(res);
     });
 };
 
 class HttpService {
-    private _headers: any;
+    private _headers: any = {};
     private _config: any;
 
     constructor(public url: string, public options: IOptions) {

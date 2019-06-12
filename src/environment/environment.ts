@@ -10,5 +10,8 @@ export const ENVConfig = {
      * 例如：baseURL: 'https://some-domain.com/api/'
      */
     baseURL: '',
-
+    MD5: '',
+    DES_KEY: '',
+    DES_IV: '',
+    needLogin: false
 };

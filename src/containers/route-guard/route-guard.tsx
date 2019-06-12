@@ -5,6 +5,7 @@ import SlideLayout from '../layout/slider-layout/slider-layout';
 import { sliderRouter, ILoadableRoute } from '../../routers/router';
 import * as _ from 'lodash';
 import './route-guard.scss';
+import { ENVConfig } from '../../environment/environment';
 
 export default class RouterGuard extends React.PureComponent<any, any> {
     public config: any;
@@ -32,13 +33,20 @@ export default class RouterGuard extends React.PureComponent<any, any> {
          */
         const token: string | null = this._cookie.getCookie('_token');
 
-        if(token) {
+        /** 
+         * 如果配置 needLogin 为false，那么久不需要验证token了
+         * 如果配置 needLogin 为true，那么需要验证token，此时需要调用后端的接口去验证
+         */
+        if (!ENVConfig.needLogin) {
             this.setState({
                 loading: false,
                 authority: true
-            })
+            });
         } else {
-            this.setState({
+            token ? this.setState({
+                loading: false,
+                authority: true
+            }) : this.setState({
                 loading: false
             });
         }
@@ -71,7 +79,7 @@ export default class RouterGuard extends React.PureComponent<any, any> {
                 </div> 
             </div> :
             this.state.authority === true ?
-            <SlideLayout loaction={location}>
+            <SlideLayout location={location}>
                 <div>
                     <Switch>
                         { routes }

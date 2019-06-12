@@ -185,7 +185,7 @@ class UserLogin extends React.PureComponent<any, any> {
                 // Todo 这一步需要后端接口
                 // const endTime: any = params['remember'] ? moment().add(30, 'days').toDate() : '';
                 // this._cookie.setCookie('_token', 'YYTDHDSASDFGHFDSDFVGBNGFDS', endTime);
-                // this.props.history.push('/home');
+                this.props.history.push('/home');
             }
         });
     }
