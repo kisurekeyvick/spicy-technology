@@ -6,7 +6,7 @@ import { ENVConfig } from '../../../environment/environment';
 import { connect } from 'react-redux';
 import { ISubmenu } from '../interface';
 import Breadcrumb from '../../../component/breadcrumb/breadcrumb';
-import { Skeleton } from 'antd';
+// import { Skeleton } from 'antd';
 import './slider-layout.scss';
 /** 
  * Todo 这一部分暂时是写死的
@@ -109,10 +109,10 @@ class SlideLayout extends React.Component<any, any>  {
                     </div>
                     <Menu className="menuList-box" theme="dark" mode="inline" defaultSelectedKeys={['3']}>
                         {
-                            this.state.isLoadingMenu ? 
-                            <div className="slide-menu-skeleton">
-                                <Skeleton paragraph={{ rows: 4 }} active/>
-                            </div> :
+                            // this.state.isLoadingMenu ? 
+                            // <div className="slide-menu-skeleton">
+                            //     <Skeleton paragraph={{ rows: 4 }} active/>
+                            // </div> :
                             slideMenu.length > 0 ? slideMenu.map((menu: ISubmenu) => {
                                 return this.buildSubMenu(menu);
                             }) : <Menu.Item key="1">
@@ -134,9 +134,11 @@ class SlideLayout extends React.Component<any, any>  {
                                 onClick={this.toggle}/>
                         </div>
                     </Header>
-                    <Content style={{height:'86vh',overflow:'auto',textAlign:'center'}}>
+                    <Content style={{overflow:'auto',textAlign:'center'}}>
                         <Breadcrumb className='kisure-breadcrumb' menu={slideMenu} location={location} />
-                        { this.props.children }
+                        <div className='kisure-antd-layout-content'>
+                            { this.props.children }
+                        </div>
                     </Content>
                     <Footer style={{ textAlign: 'center' }}>
                         { ENVConfig.footerText }

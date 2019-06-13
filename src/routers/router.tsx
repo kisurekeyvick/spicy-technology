@@ -24,6 +24,16 @@ export const sliderRouter: ILoadableRoute[] = [
         }),
         key: 2,
         exact: true
+    },
+    {
+        path: '/charts',
+        component: Loadable({
+            loader: () => import('../containers/chart/chart'),
+            loading: () => null,
+            modules: ['chart']
+        }),
+        key: 3,
+        exact: true
     }
 ];
 

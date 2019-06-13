@@ -1,0 +1,34 @@
+@import '../../common/style/global.scss';
+
+.chart-box {
+    @include kisure-content-layout;
+
+    .chart-btn-box {
+        padding: 24px;
+
+        .form-btn-group {
+            text-align: left;
+    
+            button {
+                margin-right: 8px;
+            }
+        }
+    }
+
+    .chart-content {
+        padding: 24px;
+
+        .chart-item {
+            margin: 12px 0 24px 0;
+        }
+
+        .chart-item-title {
+            span {
+                border-bottom: 1px solid #000;
+                padding: 0 100px 10px;
+            }
+
+            margin-bottom: 24px;
+        }
+    }
+}

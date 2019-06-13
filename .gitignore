@@ -12,9 +12,6 @@
 .settings/
 *.sublime-workspace
 
-# mock
-/src/_mock
-
 # testing
 /coverage
 
