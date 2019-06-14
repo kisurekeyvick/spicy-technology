@@ -17,6 +17,7 @@
 
     .chart-content {
         padding: 24px;
+        background-color: #fff;
 
         .chart-item {
             margin: 12px 0 24px 0;
@@ -29,6 +30,10 @@
             }
 
             margin-bottom: 24px;
+        }
+
+        .echart-noData {
+            margin: 50px 0 150px 0;
         }
     }
 }

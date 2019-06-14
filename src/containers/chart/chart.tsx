@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from "react-redux";
-import { Button, Form, Spin, Row, Col } from 'antd';
+import { Button, Form, Spin, Row, Col, message, Empty } from 'antd';
 import { chartBtn, IChartBtn, IBtn } from './chart-config';
 import * as _ from 'lodash';
 import * as echarts from 'echarts';
@@ -39,7 +39,8 @@ class ChartContainer extends React.PureComponent<any, any> {
         super(props);
 
         this.state = {
-            isLoading: false
+            isLoading: false,
+            disConnect: false
         };
 
         this.btnConfig = _.cloneDeep(chartBtn);
@@ -71,7 +72,8 @@ class ChartContainer extends React.PureComponent<any, any> {
         console.log(`我的天啊！！！！！！接收到消息 ${msg}`);
         this.createChart().then(res => {
             this.setState({
-                isLoading: false
+                isLoading: false,
+                disConnect: false
             });
         });
     }
@@ -81,14 +83,24 @@ class ChartContainer extends React.PureComponent<any, any> {
      * @desc client 发送消息
      */
     public clientOnSendMessage = (params: IChangeChartParams[]) => {
+        /** 判断是否连接mqtt */
+        if (!this.client.isConnected()) {
+            message.warn('未连接，请刷新重试！', 3);
+            this.setState({
+                isLoading: false,
+                disConnect: true
+            });
+            return false;
+        }
+
         const val = params.map((item: IChangeChartParams) => {
             return {
                 ...item.selectedBtn.value
             };
         });
-        const message = new paho.Message(JSON.stringify(val));
-        message.destinationName = PublishTopic;
-        this.client.send(message);
+        const msg = new paho.Message(JSON.stringify(val));
+        msg.destinationName = PublishTopic;
+        this.client.send(msg);
     }
 
     componentDidMount() {
@@ -341,11 +353,11 @@ class ChartContainer extends React.PureComponent<any, any> {
                         <Row>
                             <Col>
                                 <p className="chart-item-title"><span>XCSZ1点电流监测(mA)</span></p>
-                                <div className="chart-item" ref={this.chartRef_XCSZ1} style={{minHeight: '300px'}}/>
+                                { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_XCSZ1} style={{minHeight: '300px'}}/> }
                                 <p className="chart-item-title"><span>DCSZ2点电流监测(mA)</span></p>
-                                <div className="chart-item" ref={this.chartRef_DCSZ2} style={{minHeight: '300px'}}/>
+                                { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_DCSZ2} style={{minHeight: '300px'}}/> }
                                 <p className="chart-item-title"><span>环境温度</span></p>
-                                <div className="chart-item" ref={this.chartRef_EnvTemperature} style={{minHeight: '300px'}}/>
+                                { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_EnvTemperature} style={{minHeight: '300px'}}/> }
                             </Col>
                         </Row>
                     </Spin>
