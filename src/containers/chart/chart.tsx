@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { connect } from "react-redux";
 import { Button, Form, Spin, Row, Col, message, Empty } from 'antd';
-import { chartBtn, IChartBtn, IBtn } from './chart-config';
+import { chartBtn, IChartBtn, IBtn, initEchartStore } from './chart-config';
 import * as _ from 'lodash';
 import * as echarts from 'echarts';
 import './chart.scss';
 import * as paho from 'paho-mqtt';
+import moment from 'moment';
 import { pahoMqttClient, IRes, PublishTopic } from './chart-paho-mqtt';
 
 interface IChangeChartParams {
@@ -34,6 +35,10 @@ class ChartContainer extends React.PureComponent<any, any> {
      * mqtt 另类请求
      *  */
     public client: any;
+    /** 
+     * echart 数据存储
+     */
+    public echartStore: any;
 
     constructor(public props: any) {
         super(props);
@@ -52,6 +57,8 @@ class ChartContainer extends React.PureComponent<any, any> {
         this.client = pahoMqttClient;
         this.client.onConnectionLost = this.clientOnDisconnect;
         this.client.onMessageArrived = this.clientOnReceiveMessage;
+
+        this.echartStore = initEchartStore();
     }
 
     /** 
@@ -69,13 +76,30 @@ class ChartContainer extends React.PureComponent<any, any> {
      * @desc client 接收消息
      */
     public clientOnReceiveMessage = (msg: any) => {
-        console.log(`我的天啊！！！！！！接收到消息 ${msg}`);
+        this.formatResponseData(msg);
         this.createChart().then(res => {
             this.setState({
                 isLoading: false,
                 disConnect: false
             });
         });
+    }
+
+    public formatResponseData = (msg: any) => {
+        const data: any = JSON.parse(msg.payloadString);
+        const time: string = moment().format('YY/MM/DD hh:mm:ss');
+
+        this.echartStore['XCSZ1']['xAxis'].push(time);
+        this.echartStore['XCSZ1']['series']['red'].push(data['xcsz1_red']['current']);
+        this.echartStore['XCSZ1']['series']['green'].push(data['xcsz1_green']['current']);
+        this.echartStore['XCSZ1']['series']['white'].push(data['xcsz1_white']['current']);
+
+        this.echartStore['XCSZ2']['xAxis'].push(time);
+        this.echartStore['XCSZ2']['series']['blue'].push(data['dcsz2_blue']['current']);
+        this.echartStore['XCSZ2']['series']['white'].push(data['dcsz2_white']['current']);
+
+        this.echartStore['EnvTemperature']['xAxis'].push(time);
+        this.echartStore['EnvTemperature']['series']['orange'].push(data['temperature']);
     }
 
     /** 
@@ -223,7 +247,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                     type : 'category',
                     boundaryGap : false,
                     // 数据源
-                    data : ['56','57','58','59','60','61']
+                    data : this.echartStore['XCSZ1']['xAxis']
                 }
             ],
             yAxis : [
@@ -235,14 +259,14 @@ class ChartContainer extends React.PureComponent<any, any> {
                 {
                     name:'红色信号',
                     type:'line',
-                    data:[11, 11, 15, 13, 12, 13, 10],
+                    data:this.echartStore['XCSZ1']['series']['red'],
                     itemStyle: {normal: {
                         areaStyle: {type: 'default'}}}
                 },
                 {
                     name:'绿色信号',
                     type:'line',
-                    data:[1, -2, 2, 5, 3, 2, 0],
+                    data:this.echartStore['XCSZ1']['series']['green'],
                     itemStyle: {normal: {
                         areaStyle: {color: '#5BBD2B'},
                         lineStyle: {color: '#5BBD2B'}
@@ -251,7 +275,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                 {
                     name:'白色信号',
                     type:'line',
-                    data:[10, -20, 20, 5, 30, 2, 0],
+                    data:this.echartStore['XCSZ1']['series']['white'],
                     itemStyle: {normal: {
                         areaStyle: {color: '#808080'},
                         lineStyle: {color: '#808080'}
@@ -274,7 +298,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                     type : 'category',
                     boundaryGap : false,
                     // 数据源
-                    data : ['56','57','58','59','60','61']
+                    data : this.echartStore['XCSZ2']['xAxis']
                 }
             ],
             yAxis : [
@@ -286,7 +310,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                 {
                     name:'蓝色信号',
                     type:'line',
-                    data:[11, 11, 15, 13, 12, 13, 10],
+                    data:this.echartStore['XCSZ2']['series']['blue'],
                     itemStyle: {normal: {
                         areaStyle: {color: '#7388C1'},
                         lineStyle: {color: '#7388C1'}
@@ -295,7 +319,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                 {
                     name:'白色信号',
                     type:'line',
-                    data:[1, -2, 2, 5, 3, 2, 0],
+                    data:this.echartStore['XCSZ2']['series']['white'],
                     itemStyle: {normal: {
                         areaStyle: {color: '#808080'},
                         lineStyle: {color: '#808080'}
@@ -318,7 +342,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                     type : 'category',
                     boundaryGap : false,
                     // 数据源
-                    data : ['56','57','58','59','60','61']
+                    data : this.echartStore['EnvTemperature']['xAxis']
                 }
             ],
             yAxis : [
@@ -330,7 +354,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                 {
                     name:'现场温度',
                     type:'line',
-                    data:[11, 11, 15, 13, 12, 13, 10],
+                    data:this.echartStore['EnvTemperature']['series']['orange'],
                     itemStyle: {normal: {
                         areaStyle: {color: '#F1AF00'},
                         lineStyle: {color: '#F1AF00'}

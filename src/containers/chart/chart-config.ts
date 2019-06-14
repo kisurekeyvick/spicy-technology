@@ -1,6 +1,30 @@
 import { IChartBtn } from './interface';
 export * from './interface';
 
+export const initEchartStore = () => ({
+    XCSZ1: {
+        xAxis: [],
+        series: {
+            red: [],
+            green: [],
+            white: []
+        }
+    },
+    XCSZ2: {
+        xAxis: [],
+        series: {
+            blue: [],
+            white: []
+        }
+    },
+    EnvTemperature: {
+        xAxis: [],
+        series: {
+            orange: []
+        }
+    }
+});
+
 export const chartBtn: IChartBtn[] = [
     {
         label: 'SCSZ 1',
