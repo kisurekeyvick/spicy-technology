@@ -38,7 +38,8 @@
     "resolve": "1.10.0",
     "semver": "6.0.0",
     "ts-pnp": "1.1.2",
-    "mockjs":"^1.0.1-beta3"
+    "mockjs":"^1.0.1-beta3",
+    "paho-mqtt":"^1.1.0"
   },
   "devDependencies": {
     "@babel/core": "7.4.3",
@@ -48,6 +49,8 @@
     "babel-loader": "8.0.5",
     "babel-plugin-named-asset-import": "^0.3.2",
     "babel-preset-react-app": "^9.0.0",
+    "@types/moment":"^2.13.0",
+    "@types/paho-mqtt":"^1.0.4",
     "@types/mockjs":"^1.0.2",
     "@types/jest": "24.0.13",
     "@types/gsap":"^1.20.2",

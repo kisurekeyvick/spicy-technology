@@ -5,6 +5,8 @@ import { chartBtn, IChartBtn, IBtn } from './chart-config';
 import * as _ from 'lodash';
 import * as echarts from 'echarts';
 import './chart.scss';
+import * as paho from 'paho-mqtt';
+import { pahoMqttClient, IRes, PublishTopic } from './chart-paho-mqtt';
 
 interface IChangeChartParams {
     selectedBtn: IBtn; 
@@ -28,6 +30,10 @@ class ChartContainer extends React.PureComponent<any, any> {
      * 按钮配置
      *  */
     public btnConfig: IChartBtn[];
+    /** 
+     * mqtt 另类请求
+     *  */
+    public client: any;
 
     constructor(public props: any) {
         super(props);
@@ -40,6 +46,49 @@ class ChartContainer extends React.PureComponent<any, any> {
         this.chartRef_XCSZ1 = React.createRef();
         this.chartRef_DCSZ2 = React.createRef();
         this.chartRef_EnvTemperature = React.createRef();
+
+        /** 注册client */
+        this.client = pahoMqttClient;
+        this.client.onConnectionLost = this.clientOnDisconnect;
+        this.client.onMessageArrived = this.clientOnReceiveMessage;
+    }
+
+    /** 
+     * @func
+     * @desc client 断开连接
+     */
+    public clientOnDisconnect = (res: IRes) => {
+        if (res.errorCode !== 0) {
+            console.log(`连接已断开,${res.errorMessage}`);
+        }
+    }
+
+    /**
+     * @func
+     * @desc client 接收消息
+     */
+    public clientOnReceiveMessage = (msg: any) => {
+        console.log(`我的天啊！！！！！！接收到消息 ${msg}`);
+        this.createChart().then(res => {
+            this.setState({
+                isLoading: false
+            });
+        });
+    }
+
+    /** 
+     * @func
+     * @desc client 发送消息
+     */
+    public clientOnSendMessage = (params: IChangeChartParams[]) => {
+        const val = params.map((item: IChangeChartParams) => {
+            return {
+                ...item.selectedBtn.value
+            };
+        });
+        const message = new paho.Message(JSON.stringify(val));
+        message.destinationName = PublishTopic;
+        this.client.send(message);
     }
 
     componentDidMount() {
@@ -73,11 +122,7 @@ class ChartContainer extends React.PureComponent<any, any> {
             isLoading: true
         });
 
-        this.createChart().then(res => {
-            this.setState({
-                isLoading: false
-            });
-        });
+        this.clientOnSendMessage(params);
     }
 
     /**
