@@ -7,7 +7,7 @@ import * as echarts from 'echarts';
 import './chart.scss';
 import * as paho from 'paho-mqtt';
 import moment from 'moment';
-import { pahoMqttClient, IRes, PublishTopic } from './chart-paho-mqtt';
+import { pahoMqttClient, IRes, PublishTopic, options } from './chart-paho-mqtt';
 
 interface IChangeChartParams {
     selectedBtn: IBtn; 
@@ -55,10 +55,25 @@ class ChartContainer extends React.PureComponent<any, any> {
 
         /** 注册client */
         this.client = pahoMqttClient;
+
         this.client.onConnectionLost = this.clientOnDisconnect;
         this.client.onMessageArrived = this.clientOnReceiveMessage;
+        this.client.onConnected = this.clientOnConnected;
+        
+        if (!this.client.isConnected()) {
+            this.client.connect(options);
+        }
 
         this.echartStore = initEchartStore();
+    }
+
+    /** 
+     * @func
+     * @desc client 连接成功
+     */
+    public clientOnConnected  = (res: any) => {
+        // console.log(`连接牛逼了,${res}`);
+        message.warn('服务器已连接', 2);      
     }
 
     /** 
@@ -67,7 +82,10 @@ class ChartContainer extends React.PureComponent<any, any> {
      */
     public clientOnDisconnect = (res: IRes) => {
         if (res.errorCode !== 0) {
-            console.log(`连接已断开,${res.errorMessage}`);
+            console.log(`连接已断开,重试,${res.errorMessage}`);
+            if (!this.client.isConnected()) {
+                this.client.connect(options);
+            }
         }
     }
 
@@ -77,29 +95,42 @@ class ChartContainer extends React.PureComponent<any, any> {
      */
     public clientOnReceiveMessage = (msg: any) => {
         this.formatResponseData(msg);
-        this.createChart().then(res => {
-            this.setState({
-                isLoading: false,
-                disConnect: false
-            });
+        console.log(`牛都222222222逼了,${msg}`);
+        this.setState({
+            isLoading: false,
+            disConnect: false
         });
+
+        this.createChart();
+        // .then(res => {
+        //     this.setState({
+        //         isLoading: false,
+        //         disConnect: false
+        //     });
+        // });      
     }
 
     public formatResponseData = (msg: any) => {
-        const data: any = JSON.parse(msg.payloadString);
-        const time: string = moment().format('YY/MM/DD hh:mm:ss');
+        var data: any = JSON.parse(msg.payloadString);
+        const time: string = moment().format('HH:mm:ss');
+
+        if(data.name !== "FeedbackJson")
+        {
+            console.log(`炸了不是正确的数据,${data.name}`);
+        }
 
         this.echartStore['XCSZ1']['xAxis'].push(time);
-        this.echartStore['XCSZ1']['series']['red'].push(data['xcsz1_red']['current']);
-        this.echartStore['XCSZ1']['series']['green'].push(data['xcsz1_green']['current']);
-        this.echartStore['XCSZ1']['series']['white'].push(data['xcsz1_white']['current']);
+        this.echartStore['XCSZ1']['series']['red'].push(data.xcsz1_red.current);
+        this.echartStore['XCSZ1']['series']['green'].push(data.xcsz1_green.current);
+        this.echartStore['XCSZ1']['series']['white'].push(data.xcsz1_white.current);
 
         this.echartStore['XCSZ2']['xAxis'].push(time);
-        this.echartStore['XCSZ2']['series']['blue'].push(data['dcsz2_blue']['current']);
-        this.echartStore['XCSZ2']['series']['white'].push(data['dcsz2_white']['current']);
+        this.echartStore['XCSZ2']['series']['blue'].push(data.dcsz2_blue.current);
+        this.echartStore['XCSZ2']['series']['white'].push(data.dcsz2_white.current);
 
         this.echartStore['EnvTemperature']['xAxis'].push(time);
-        this.echartStore['EnvTemperature']['series']['orange'].push(data['temperature']);
+        this.echartStore['EnvTemperature']['series']['orange'].push(data.temperature);
+
     }
 
     /** 
@@ -129,6 +160,22 @@ class ChartContainer extends React.PureComponent<any, any> {
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeChart);
+
+        // /** 
+        //  * XCSZ1 */
+        // const domTarget_XCSZ1: any = this.chartRef_XCSZ1['current'];
+        // this.echarts_XCSZ1 = echarts.init(domTarget_XCSZ1);
+     
+        // /** 
+        //  * XCSZ2 */
+        // const domTarget_DCSZ2: any = this.chartRef_DCSZ2['current'];
+        // this.echarts_XCSZ2 = echarts.init(domTarget_DCSZ2);
+        // /** 
+        //  * 环境温度 */
+        // const domTarget_EnvTemperature: any = this.chartRef_EnvTemperature['current'];
+        // this.echarts_EnvTemperature = echarts.init(domTarget_EnvTemperature);
+
+
         /** 默认加载 "定位允许" "调车禁止" 数据 */
         const params: IChangeChartParams[] = [
             {
@@ -140,12 +187,21 @@ class ChartContainer extends React.PureComponent<any, any> {
                 btnCollection: this.btnConfig[1]
             }
         ];
-        this.changeChart(params);
+
+        params.forEach((item: IChangeChartParams) => {
+            item.btnCollection.btnGroup.forEach((btn: IBtn) => {
+                btn.btnType = item.selectedBtn.key === btn.key ? 'primary' : 'default';
+            });
+        });
+
+        //不要一上来就发送
+        //this.changeChart(params);
+
     }
 
     /**
      * @func
-     * @desc 点击按钮，切换数据
+     * @desc 点击按钮，发送数据数据
      */
     public changeChart = (params: IChangeChartParams[]) => {
         params.forEach((item: IChangeChartParams) => {
@@ -154,9 +210,10 @@ class ChartContainer extends React.PureComponent<any, any> {
             });
         });
 
-        this.setState({
-            isLoading: true
-        });
+        //不存在需要切换图表
+        // this.setState({
+        //     isLoading: true
+        // });
 
         this.clientOnSendMessage(params);
     }
@@ -205,10 +262,13 @@ class ChartContainer extends React.PureComponent<any, any> {
      * @desc 构建图表
      */
     public createChart = ():Promise<any> => {
-        /** 
+
+                /** 
          * XCSZ1 */
         const domTarget_XCSZ1: any = this.chartRef_XCSZ1['current'];
         this.echarts_XCSZ1 = echarts.init(domTarget_XCSZ1);
+        console.log(`牛真的逼了,${domTarget_XCSZ1}`);
+     
         /** 
          * XCSZ2 */
         const domTarget_DCSZ2: any = this.chartRef_DCSZ2['current'];
@@ -217,6 +277,7 @@ class ChartContainer extends React.PureComponent<any, any> {
          * 环境温度 */
         const domTarget_EnvTemperature: any = this.chartRef_EnvTemperature['current'];
         this.echarts_EnvTemperature = echarts.init(domTarget_EnvTemperature);
+
 
         /** 
          * 配置 */
@@ -230,7 +291,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                 saveAsImage : {show: true}
             }
         };
-
+       
         /** 
          * 画chart */
         this.echarts_XCSZ1.setOption({

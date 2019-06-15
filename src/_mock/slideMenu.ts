@@ -9,7 +9,7 @@ const menu = Mock.mock([
         child: []
     },
     {
-        title: '图表',
+        title: '信号机监测',
         path: '/charts',
         key: '2',
         tags: 'appstore', 
