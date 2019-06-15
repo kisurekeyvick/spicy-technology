@@ -9,15 +9,15 @@ export interface IRes {
 
 const hostname: string = 'www.microspicy.com'; 
 const port: number = 8083;
-const clientId: string = 'web_mqtt_ya223oc';
+const clientId: string = 'web_mqtt_yao711c';
 const timeout: number = 5;
 const keepAlive: number = 100;
 const cleanSession: boolean = false;
 const ssl: boolean = false;
 const userName: string = 'yao';  
 const password: string = 'public';  
-const topic: string = '/YAOmqtt/statustt';
-export const PublishTopic = '/YAOmqtt/ctrltt';
+const topic: string = '/YAOmqtt/FXYSignal_Status';
+export const PublishTopic = '/YAOmqtt/FXYSignal_Ctrl';
 
 const client = new paho.Client(hostname, port, clientId);
 /** 建立客户端实例 */
