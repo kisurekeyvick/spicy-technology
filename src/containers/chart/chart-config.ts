@@ -34,25 +34,25 @@ export const chartBtn: IChartBtn[] = [
                 title: '定位允许',
                 key: 'SCSZ-1-1',
                 btnType: 'default',
-                value: {'cmd':'X16','name':'CommandJson'}
+                value: "{\"cmd\":\"X16\",\"name\":\"CommandJson\"}"
             },
             {
                 title: '反位允许',
                 key: 'SCSZ-1-2',
                 btnType:'default',
-                value: {'cmd':'X14','name':'CommandJson'}
+                value: "{\"cmd\":\"X14\",\"name\":\"CommandJson\"}"
             },
             {
                 title: '禁止信号',
                 key: 'SCSZ-1-3',
                 btnType:'default',
-                value: {'cmd':'X10','name':'CommandJson'}
+                value: "{\"cmd\":\"X10\",\"name\":\"CommandJson\"}"
             },
             {
                 title: '引导信号',
                 key: 'SCSZ-1-4',
                 btnType:'default',
-                value: {'cmd':'X11','name':'CommandJson'}
+                value: "{\"cmd\":\"X11\",\"name\":\"CommandJson\"}"
             }
         ]
     },
@@ -64,13 +64,13 @@ export const chartBtn: IChartBtn[] = [
                 title: '调车禁止',
                 key: 'SCSZ-2-1',
                 btnType:'default',
-                value: {'cmd':'X20','name':'CommandJson'}
+                value: "{\"cmd\":\"X20\",\"name\":\"CommandJson\"}"
             },
             {
                 title: '调车允许',
                 key: 'SCSZ-2-2',
                 btnType:'default',
-                value: {'cmd':'X26','name':'CommandJson'}
+                value: "{\"cmd\":\"X26\",\"name\":\"CommandJson\"}"
             },
         ]
     }

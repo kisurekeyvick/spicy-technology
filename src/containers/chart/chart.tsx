@@ -112,7 +112,7 @@ class ChartContainer extends React.PureComponent<any, any> {
 
     public formatResponseData = (msg: any) => {
         var data: any = JSON.parse(msg.payloadString);
-        const time: string = moment().format('HH:mm:ss');
+        const time: string = moment().format('YY年MM月DD日HH:mm:ss');
 
         if(data.name !== "FeedbackJson")
         {
@@ -149,11 +149,12 @@ class ChartContainer extends React.PureComponent<any, any> {
         }
 
         const val = params.map((item: IChangeChartParams) => {
-            return {
-                ...item.selectedBtn.value
-            };
+            return item.selectedBtn.value; //modified value to a string type!
         });
-        const msg = new paho.Message(JSON.stringify(val));
+        
+        //to Dr.Han: did not need JSON.stringify here ,val is already a JSON String.
+        //const msg = new paho.Message(JSON.stringify(val));
+        const msg = new paho.Message(val[0]);
         msg.destinationName = PublishTopic;
         this.client.send(msg);
     }
@@ -281,7 +282,7 @@ class ChartContainer extends React.PureComponent<any, any> {
 
         /** 
          * 配置 */
-        const toolbox = {
+        /*const toolbox = {
             show : true,
             feature : {
                 mark : {show: true},
@@ -290,7 +291,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                 restore : {show: true},
                 saveAsImage : {show: true}
             }
-        };
+        };*/
 
         var chartXCSZ1_option = {
             tooltip: {
@@ -323,8 +324,8 @@ class ChartContainer extends React.PureComponent<any, any> {
             },
             dataZoom: [{
                 type: 'inside',
-                start: 0,
-                end: 70
+                //start: 30,
+                //end: 100
             }, {
                 start: 0,
                 end: 10,
@@ -434,8 +435,8 @@ class ChartContainer extends React.PureComponent<any, any> {
             },
             dataZoom: [{
                 type: 'inside',
-                start: 0,
-                end: 70
+                //start: 30,
+                //end: 100
             }, {
                 start: 0,
                 end: 10,
@@ -524,8 +525,8 @@ class ChartContainer extends React.PureComponent<any, any> {
             },
             dataZoom: [{
                 type: 'inside',
-                start: 0,
-                end: 70
+                //start: 30,
+                //end: 100
             }, {
                 start: 0,
                 end: 10,
