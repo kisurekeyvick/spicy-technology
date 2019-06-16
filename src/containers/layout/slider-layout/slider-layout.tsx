@@ -6,7 +6,6 @@ import { ENVConfig } from '../../../environment/environment';
 import { connect } from 'react-redux';
 import { ISubmenu } from '../interface';
 import Breadcrumb from '../../../component/breadcrumb/breadcrumb';
-// import { Skeleton } from 'antd';
 import './slider-layout.scss';
 /** 
  * Todo 这一部分暂时是写死的
@@ -92,15 +91,9 @@ class SlideLayout extends React.Component<any, any>  {
         }
     }
 
-    /** 左侧菜单按钮骨架屏幕 */
-    // public slideMenuSkeleton = <React.Fragment>
-    //                                 <Skeleton avatar paragraph={{ rows: 4 }} />
-    //                             </React.Fragment>;
-
     public render() {
         const { location } = this.props; //  userInfo, 
         const slideMenu: ISubmenu[] = this.state.menu || [];
-        // const SlideMenuSkeleton: any = this.slideMenuSkeleton;
         return (
             <Layout>
                 <Sider trigger={null} collapsible={true} collapsed={this.state.collapsed}>
@@ -109,10 +102,6 @@ class SlideLayout extends React.Component<any, any>  {
                     </div>
                     <Menu className="menuList-box" theme="dark" mode="inline" defaultSelectedKeys={['3']}>
                         {
-                            // this.state.isLoadingMenu ? 
-                            // <div className="slide-menu-skeleton">
-                            //     <Skeleton paragraph={{ rows: 4 }} active/>
-                            // </div> :
                             slideMenu.length > 0 ? slideMenu.map((menu: ISubmenu) => {
                                 return this.buildSubMenu(menu);
                             }) : <Menu.Item key="1">
@@ -127,11 +116,16 @@ class SlideLayout extends React.Component<any, any>  {
 
                 <Layout className={this.props.collapse ? 'kisure-ant-layout-main-collapse' : 'kisure-ant-layout-main'}>
                     <Header style={{ background: '#fff', padding: 0 }}>
-                        <div className="header-icon">
-                            <Icon
-                                className="trigger"
-                                type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
-                                onClick={this.toggle}/>
+                        <div className="header-box">
+                            <div className="header-icon">
+                                <Icon
+                                    className="trigger"
+                                    type={this.state.collapsed ? 'menu-unfold' : 'menu-fold'}
+                                    onClick={this.toggle}/>
+                            </div>
+                            {
+                                ENVConfig.headTitle && <div className="header-title">{ENVConfig.headTitle}</div>
+                            }
                         </div>
                     </Header>
                     <Content style={{overflow:'auto',textAlign:'center'}}>

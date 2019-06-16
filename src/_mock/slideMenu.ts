@@ -5,14 +5,14 @@ const menu = Mock.mock([
         title: '首页',
         path: '/home',
         key: '1',
-        tags: 'appstore', 
+        tags: 'home', 
         child: []
     },
     {
         title: '信号机监测',
         path: '/charts',
         key: '2',
-        tags: 'appstore', 
+        tags: 'line-chart', 
         child: []
     }
 ]);

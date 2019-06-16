@@ -34,6 +34,16 @@ export const sliderRouter: ILoadableRoute[] = [
         }),
         key: 3,
         exact: true
+    },
+    {
+        path: '',
+        component: Loadable({
+            loader: () => import('../containers/exception/exception'),
+            loading: () => null,
+            modules: ['exception']
+        }),
+        key: 300,
+        exact: true
     }
 ];
 

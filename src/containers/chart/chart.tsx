@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from "react-redux";
 import { Button, Form, Spin, Row, Col, message, Empty } from 'antd';
-import { chartBtn, IChartBtn, IBtn, initEchartStore } from './chart-config';
+import { chartBtn, IChartBtn, IBtn, initEchartStore, chartXCSZ1_config, chartXCSZ2_config, chartEnvTemp_config} from './chart-config';
 import * as _ from 'lodash';
 import * as echarts from 'echarts';
 import './chart.scss';
@@ -25,7 +25,7 @@ class ChartContainer extends React.PureComponent<any, any> {
      * react demo对象操作实例 
      * */
     public chartRef_XCSZ1: any;
-    public chartRef_DCSZ2: any;
+    public chartRef_XCSZ2: any;
     public chartRef_EnvTemperature: any;
     /** 
      * 按钮配置
@@ -35,6 +35,7 @@ class ChartContainer extends React.PureComponent<any, any> {
      * mqtt 另类请求
      *  */
     public client: any;
+    public clientState: any;
     /** 
      * echart 数据存储
      */
@@ -45,24 +46,26 @@ class ChartContainer extends React.PureComponent<any, any> {
 
         this.state = {
             isLoading: false,
-            disConnect: false
+            disConnect: true,
+            clickBtnCount: 0
+        };
+
+        this.clientState = {
+            isConnected: false
         };
 
         this.btnConfig = _.cloneDeep(chartBtn);
         this.chartRef_XCSZ1 = React.createRef();
-        this.chartRef_DCSZ2 = React.createRef();
+        this.chartRef_XCSZ2 = React.createRef();
         this.chartRef_EnvTemperature = React.createRef();
 
         /** 注册client */
-        this.client = pahoMqttClient;
-
-        this.client.onConnectionLost = this.clientOnDisconnect;
-        this.client.onMessageArrived = this.clientOnReceiveMessage;
-        this.client.onConnected = this.clientOnConnected;
-        
-        if (!this.client.isConnected()) {
-            this.client.connect(options);
-        }
+        this.client = Object.assign(pahoMqttClient, {
+            onConnectionLost: this.clientOnDisconnect,
+            onMessageArrived: this.clientOnReceiveMessage,
+            onConnected: this.clientOnConnected
+        });
+        !this.client.isConnected() && this.client.connect(options);
 
         this.echartStore = initEchartStore();
     }
@@ -72,8 +75,14 @@ class ChartContainer extends React.PureComponent<any, any> {
      * @desc client 连接成功
      */
     public clientOnConnected  = (res: any) => {
-        // console.log(`连接牛逼了,${res}`);
-        message.warn('服务器已连接', 2);      
+        if (!this.clientState['isConnected']) {
+            message.success('服务器已连接', 2);
+            this.setState({
+                disConnect: false,
+                isLoading: true
+            });
+            this.clientState['isConnected'] = true;
+        }
     }
 
     /** 
@@ -82,10 +91,10 @@ class ChartContainer extends React.PureComponent<any, any> {
      */
     public clientOnDisconnect = (res: IRes) => {
         if (res.errorCode !== 0) {
-            console.log(`连接已断开,重试,${res.errorMessage}`);
-            if (!this.client.isConnected()) {
-                this.client.connect(options);
-            }
+            this.clientState['isConnected'] = true;
+
+            /** 如果断开连接，那么久进行重连 */
+            !this.client.isConnected() && this.client.connect(options);
         }
     }
 
@@ -95,28 +104,21 @@ class ChartContainer extends React.PureComponent<any, any> {
      */
     public clientOnReceiveMessage = (msg: any) => {
         this.formatResponseData(msg);
-        console.log(`牛都222222222逼了,${msg}`);
+
         this.setState({
             isLoading: false,
             disConnect: false
         });
 
-        this.createChart();
-        // .then(res => {
-        //     this.setState({
-        //         isLoading: false,
-        //         disConnect: false
-        //     });
-        // });      
+        this.createChart();    
     }
 
     public formatResponseData = (msg: any) => {
         var data: any = JSON.parse(msg.payloadString);
         const time: string = moment().format('YY年MM月DD日HH:mm:ss');
 
-        if(data.name !== "FeedbackJson")
-        {
-            console.log(`炸了不是正确的数据,${data.name}`);
+        if(data.name !== "FeedbackJson"){
+            throw new Error(`数据格式错误,${data.name}`);
         }
 
         this.echartStore['XCSZ1']['xAxis'].push(time);
@@ -153,7 +155,6 @@ class ChartContainer extends React.PureComponent<any, any> {
         });
         
         //to Dr.Han: did not need JSON.stringify here ,val is already a JSON String.
-        //const msg = new paho.Message(JSON.stringify(val));
         const msg = new paho.Message(val[0]);
         msg.destinationName = PublishTopic;
         this.client.send(msg);
@@ -161,21 +162,6 @@ class ChartContainer extends React.PureComponent<any, any> {
 
     componentDidMount() {
         window.addEventListener('resize', this.resizeChart);
-
-        // /** 
-        //  * XCSZ1 */
-        // const domTarget_XCSZ1: any = this.chartRef_XCSZ1['current'];
-        // this.echarts_XCSZ1 = echarts.init(domTarget_XCSZ1);
-     
-        // /** 
-        //  * XCSZ2 */
-        // const domTarget_DCSZ2: any = this.chartRef_DCSZ2['current'];
-        // this.echarts_XCSZ2 = echarts.init(domTarget_DCSZ2);
-        // /** 
-        //  * 环境温度 */
-        // const domTarget_EnvTemperature: any = this.chartRef_EnvTemperature['current'];
-        // this.echarts_EnvTemperature = echarts.init(domTarget_EnvTemperature);
-
 
         /** 默认加载 "定位允许" "调车禁止" 数据 */
         const params: IChangeChartParams[] = [
@@ -188,16 +174,19 @@ class ChartContainer extends React.PureComponent<any, any> {
                 btnCollection: this.btnConfig[1]
             }
         ];
+        this.btnActive(params);
+    }
 
+    /** 
+     * @func
+     * @desc 按钮颜色激活
+     */
+    public btnActive = (params: IChangeChartParams[]) => {
         params.forEach((item: IChangeChartParams) => {
             item.btnCollection.btnGroup.forEach((btn: IBtn) => {
                 btn.btnType = item.selectedBtn.key === btn.key ? 'primary' : 'default';
             });
         });
-
-        //不要一上来就发送
-        //this.changeChart(params);
-
     }
 
     /**
@@ -205,18 +194,13 @@ class ChartContainer extends React.PureComponent<any, any> {
      * @desc 点击按钮，发送数据数据
      */
     public changeChart = (params: IChangeChartParams[]) => {
-        params.forEach((item: IChangeChartParams) => {
-            item.btnCollection.btnGroup.forEach((btn: IBtn) => {
-                btn.btnType = item.selectedBtn.key === btn.key ? 'primary' : 'default';
-            });
-        });
-
-        //不存在需要切换图表
-        // this.setState({
-        //     isLoading: true
-        // });
+        this.btnActive(params);
 
         this.clientOnSendMessage(params);
+
+        this.setState({
+            clickBtnCount: this.state.clickBtnCount + 1
+        });
     }
 
     /**
@@ -263,82 +247,26 @@ class ChartContainer extends React.PureComponent<any, any> {
      * @desc 构建图表
      */
     public createChart = ():Promise<any> => {
-
-                /** 
+        /** 
          * XCSZ1 */
         const domTarget_XCSZ1: any = this.chartRef_XCSZ1['current'];
         this.echarts_XCSZ1 = echarts.init(domTarget_XCSZ1);
-        console.log(`牛真的逼了,${domTarget_XCSZ1}`);
      
         /** 
          * XCSZ2 */
-        const domTarget_DCSZ2: any = this.chartRef_DCSZ2['current'];
-        this.echarts_XCSZ2 = echarts.init(domTarget_DCSZ2);
+        const domTarget_XCSZ2: any = this.chartRef_XCSZ2['current'];
+        this.echarts_XCSZ2 = echarts.init(domTarget_XCSZ2);
         /** 
          * 环境温度 */
         const domTarget_EnvTemperature: any = this.chartRef_EnvTemperature['current'];
         this.echarts_EnvTemperature = echarts.init(domTarget_EnvTemperature);
 
-
-        /** 
-         * 配置 */
-        /*const toolbox = {
-            show : true,
-            feature : {
-                mark : {show: true},
-                dataView : {show: true, readOnly: false},
-                magicType : {show: true, type: ['line', 'bar']},
-                restore : {show: true},
-                saveAsImage : {show: true}
-            }
-        };*/
-
-        var chartXCSZ1_option = {
-            tooltip: {
-                trigger: 'axis',
-                position: function (pt: any[]) {
-                    return [pt[0], '10%'];
-                }
-            },
-            title: {
-                left: 'center',
-                text: 'XCSZ1信号机发光单元电流监测',
-            },
-            toolbox: {
-                feature: {
-                    dataZoom: {
-                        yAxisIndex: 'none'
-                    },
-                    restore: {},
-                    saveAsImage: {}
-                }
-            },
+        const chartXCSZ1_option = { ...chartXCSZ1_config, 
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
                 data: this.echartStore['XCSZ1']['xAxis']
             },
-            yAxis: {
-                type: 'value',
-                boundaryGap: [0, '100%']
-            },
-            dataZoom: [{
-                type: 'inside',
-                //start: 30,
-                //end: 100
-            }, {
-                start: 0,
-                end: 10,
-                handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                handleSize: '80%',
-                handleStyle: {
-                    color: '#fff',
-                    shadowBlur: 3,
-                    shadowColor: 'rgba(0, 0, 0, 0.6)',
-                    shadowOffsetX: 2,
-                    shadowOffsetY: 2
-                }
-            }],
             series: [
                 {
                     name:'红色单元电流(mA)',
@@ -404,52 +332,12 @@ class ChartContainer extends React.PureComponent<any, any> {
             ]
         };
 
-        var chartXCSZ2_option = {
-            tooltip: {
-                trigger: 'axis',
-                position: function (pt: any[]) {
-                    return [pt[0], '10%'];
-                }
-            },
-            title: {
-                left: 'center',
-                text: 'DCSZ2信号机发光单元电流监测',
-            },
-            toolbox: {
-                feature: {
-                    dataZoom: {
-                        yAxisIndex: 'none'
-                    },
-                    restore: {},
-                    saveAsImage: {}
-                }
-            },
+        const chartXCSZ2_option = { ...chartXCSZ2_config,
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
                 data:  this.echartStore['EnvTemperature']['xAxis']
             },
-            yAxis: {
-                type: 'value',
-                boundaryGap: [0, '100%']
-            },
-            dataZoom: [{
-                type: 'inside',
-                //start: 30,
-                //end: 100
-            }, {
-                start: 0,
-                end: 10,
-                handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                handleSize: '80%',
-                handleStyle: {
-                    color: '#fff',
-                    shadowBlur: 3,
-                    shadowColor: 'rgba(0, 0, 0, 0.6)',
-                    shadowOffsetX: 2,
-                    shadowOffsetY: 2
-                }
-            }],
             series: [
                 {
                     name:'蓝色单元电流(mA)',
@@ -494,52 +382,12 @@ class ChartContainer extends React.PureComponent<any, any> {
             ]
         };
 
-        var chartEnvTemp_option = {
-            tooltip: {
-                trigger: 'axis',
-                position: function (pt: any[]) {
-                    return [pt[0], '80%'];
-                }
-            },
-            title: {
-                left: 'center',
-                text: '环境温度监测',
-            },
-            toolbox: {
-                feature: {
-                    dataZoom: {
-                        yAxisIndex: 'none'
-                    },
-                    restore: {},
-                    saveAsImage: {}
-                }
-            },
+        const chartEnvTemp_option = { ...chartEnvTemp_config,
             xAxis: {
                 type: 'category',
                 boundaryGap: false,
                 data: this.echartStore['EnvTemperature']['xAxis']
             },
-            yAxis: {
-                type: 'value',
-                boundaryGap: [0, '100%']
-            },
-            dataZoom: [{
-                type: 'inside',
-                //start: 30,
-                //end: 100
-            }, {
-                start: 0,
-                end: 10,
-                handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
-                handleSize: '80%',
-                handleStyle: {
-                    color: '#fff',
-                    shadowBlur: 3,
-                    shadowColor: 'rgba(0, 0, 0, 0.6)',
-                    shadowOffsetX: 2,
-                    shadowOffsetY: 2
-                }
-            }],
             series: [
                 {
                     name:'温度(°C)',
@@ -588,7 +436,7 @@ class ChartContainer extends React.PureComponent<any, any> {
                                 <p className="chart-item-title"><span>XCSZ1监测</span></p>
                                 { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_XCSZ1} style={{minHeight: '300px'}}/> }
                                 <p className="chart-item-title"><span>DCSZ2监测</span></p>
-                                { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_DCSZ2} style={{minHeight: '300px'}}/> }
+                                { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_XCSZ2} style={{minHeight: '300px'}}/> }
                                 <p className="chart-item-title"><span>环境监测</span></p>
                                 { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_EnvTemperature} style={{minHeight: '300px'}}/> }
                             </Col>
