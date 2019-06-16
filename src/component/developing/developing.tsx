@@ -1,5 +1,4 @@
 import * as React from 'react';
-import {Icon} from 'antd';
 import './developing.scss';
 
 export default class DevelopingComponent extends React.Component<any, any> {
@@ -10,8 +9,8 @@ export default class DevelopingComponent extends React.Component<any, any> {
     public render() {
         return (
             <div className='kisure-developing'>
-                <Icon className='smile' type="exception" />
-                <p>开发中，敬请期待...</p>
+                <img alt='开发中......' src='https://gw.alipayobjects.com/zos/rmsportal/RVRUAYdCGeYNBWoKiIwB.svg' />
+                <p>开发中，敬请期待......</p>
             </div>
         )
     }
