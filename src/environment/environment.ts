@@ -2,8 +2,8 @@ import loginLogo from '../assets/loginLogo.png';
 import siderLogo from '../assets/siderLogo.png';
 
 export const ENVConfig = {
-    name: '微辣科技',
-    footerText: 'spicy-technology ©2019 Author Kisure',
+    name: '轮询科技-总线型智能网联信号机监测系统',
+    footerText: 'Microspicy-Technology ©2019 Author Kisure',
     siderLogo,
     loginLogo,
     /** 

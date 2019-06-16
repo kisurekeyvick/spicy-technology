@@ -3,7 +3,7 @@ type Tbtn = 'primary' | 'default' | undefined;
 export interface IBtn {
     title: string;
     key: string;
-    value: object;
+    value: string;
     btnType: Tbtn;
     color?: string;
 }
