@@ -433,11 +433,11 @@ class ChartContainer extends React.PureComponent<any, any> {
                     <Spin tip="Loading..." spinning={this.state.isLoading}>
                         <Row>
                             <Col>
-                                <p className="chart-item-title"><span>XCSZ1监测</span></p>
+                                <p className="chart-item-title"><span>XCSZ1信号机发光单元电流监测</span></p>
                                 { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_XCSZ1} style={{minHeight: '300px'}}/> }
-                                <p className="chart-item-title"><span>DCSZ2监测</span></p>
+                                <p className="chart-item-title"><span>DCSZ2信号机发光单元电流监测</span></p>
                                 { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_XCSZ2} style={{minHeight: '300px'}}/> }
-                                <p className="chart-item-title"><span>环境监测</span></p>
+                                <p className="chart-item-title"><span>环境温度监测</span></p>
                                 { this.state.disConnect ? <Empty className='echart-noData'/> : <div className="chart-item" ref={this.chartRef_EnvTemperature} style={{minHeight: '300px'}}/> }
                             </Col>
                         </Row>

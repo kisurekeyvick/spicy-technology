@@ -83,10 +83,6 @@ export const chartXCSZ1_config: any = {
             return [pt[0], '10%'];
         }
     },
-    title: {
-        left: 'center',
-        text: 'XCSZ1信号机发光单元电流监测',
-    },
     toolbox: {
         feature: {
             dataZoom: {
@@ -126,10 +122,6 @@ export const chartXCSZ2_config: any = {
             return [pt[0], '10%'];
         }
     },
-    title: {
-        left: 'center',
-        text: 'DCSZ2信号机发光单元电流监测',
-    },
     toolbox: {
         feature: {
             dataZoom: {
@@ -168,10 +160,6 @@ export const chartEnvTemp_config: any = {
         position: function (pt: any[]) {
             return [pt[0], '80%'];
         }
-    },
-    title: {
-        left: 'center',
-        text: '环境温度监测',
     },
     toolbox: {
         feature: {
