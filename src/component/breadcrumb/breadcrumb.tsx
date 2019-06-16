@@ -2,6 +2,7 @@ import * as React from 'react';
 import {Breadcrumb, Icon} from 'antd';
 import * as PropTypes from 'prop-types';
 import { ISubmenu } from '../../containers/layout/interface';
+import { ENVConfig } from '../../environment/environment';
 import './breadcrumb.scss';
 
 export default class BreadComponent extends React.Component<any, any> {
@@ -94,6 +95,9 @@ export default class BreadComponent extends React.Component<any, any> {
         return(
             <div className="kisure-antd-layout">
                 <Breadcrumb>{breadArray}</Breadcrumb>
+                {
+                    ENVConfig.headSubTitle && <span className="header-subtitle">{ENVConfig.headSubTitle}</span>
+                }
             </div>
         )
     }

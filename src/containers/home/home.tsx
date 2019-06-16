@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import DevelopingComponent from '../../component/developing/developing';
+import './home.scss';
 
 class HomeContainer extends React.PureComponent<any, any> {
     constructor(public props: any) {
@@ -16,7 +18,9 @@ class HomeContainer extends React.PureComponent<any, any> {
 
     public render() {
         return (
-            <div>hello kisure</div>
+            <div className='home-layout'>
+                <DevelopingComponent/>
+            </div>
         );
     }
 }

@@ -14,5 +14,7 @@ export const ENVConfig = {
     MD5: '',
     DES_KEY: '',
     DES_IV: '',
-    needLogin: false
+    needLogin: false,
+    headTitle: '总线型智能网联信号机监测系统',
+    headSubTitle: '——上海师范大学 轮询科工团队'
 };

@@ -1,0 +1,9 @@
+@import '../../common/style/global.scss';
+
+.home-layout {
+    @include kisure-content-layout;
+
+    .kisure-developing {
+        padding-top: 200px;
+    }
+}
