@@ -9,7 +9,7 @@ export interface IRes {
 
 const hostname: string = 'www.microspicy.com'; 
 const port: number = 8083;
-const clientId: string = `web_mqtt_yao711c${new Date().getTime()}`;
+const clientId: string = `web_mqtt${new Date().getTime()}`;
 const timeout: number = 5;
 const keepAlive: number = 100;
 const cleanSession: boolean = false;
