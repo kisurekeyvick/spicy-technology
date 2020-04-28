@@ -426,7 +426,7 @@ class ChartContainer extends React.PureComponent<any, any> {
     public render() {
         return (
             <div className='chart-box'>
-                <div className='chart-btn-box'>
+                {/* <div className='chart-btn-box'>
                     { this.buildChartBtn() }
                 </div>
                 <div className='chart-content'>
@@ -442,7 +442,8 @@ class ChartContainer extends React.PureComponent<any, any> {
                             </Col>
                         </Row>
                     </Spin>
-                </div>
+                </div> */}
+                <iframe src="http://t.microspicy.com/" width="100%" height="100%"/>
             </div>
         );
     }
